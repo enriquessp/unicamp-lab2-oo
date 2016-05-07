@@ -36,6 +36,7 @@ public class Terminal {
         System.out.println("2. Consulta de Reservas");
         System.out.println("3. Imprimir");
         System.out.println("4. Encerrar");
+        System.out.println("5. Cancelar Reserva");
     }
 
     private void executaOperacao() {
@@ -52,13 +53,36 @@ public class Terminal {
             case 4:
                 encerrar();
                 break;
+            case 5:
+                cancelar();
+                break;
             default:
                 System.err.println("Operação Inválida!");
                 break;
         }
     }
 
-    private void reservar() {
+    private void cancelar() {
+    	Integer idPassageiro = solicitarIdPassageiro();
+        String numeroVoo = solicitarNumeroVoo();
+
+        try {
+			controlador.validarDadosParaCancelamento(idPassageiro, numeroVoo);
+		} catch (ValidarDadosException e) {
+			System.err.println(e.getMessage());
+			return;
+		}
+        
+        boolean cancelado = controlador.cancelarReserva(idPassageiro, numeroVoo);
+
+        if (cancelado) {
+        	System.out.println("Reserva cancelada com sucesso!");
+        } else {
+        	System.out.println("Reserva não pode ser cancelada!");
+        }
+	}
+
+	private void reservar() {
         Integer idPassageiro = solicitarIdPassageiro();
         String numeroVoo = solicitarNumeroVoo();
 

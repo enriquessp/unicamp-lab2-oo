@@ -18,11 +18,11 @@ public class Controlador {
         }
 
         if (passageiroExistente) {
-            if (!existeReserva(idPassageiro)) {
+            if (!existeReservaOuReservaEmLista(idPassageiro)) {
                 throw new ValidarDadosException("Não existe uma reserva para esse passageiro neste voo");
             }
         } else {
-            if (existeReserva(idPassageiro)) {
+            if (existeReservaOuReservaEmLista(idPassageiro)) {
                 throw new ValidarDadosException("Já existe uma reserva para esse passageiro neste voo");
             }
         }
@@ -90,7 +90,7 @@ public class Controlador {
 
     private Aeronave criarAeronave() {
         Aeronave aeronave = new Aeronave();
-        aeronave.setCapacidadeTotal(30);
+        aeronave.setCapacidadeTotal(2);
         return aeronave;
     }
 
@@ -115,8 +115,12 @@ public class Controlador {
         return passageiro;
     }
 
-    private boolean existeReserva(Integer idPassageiro) {
+    private boolean existeReservaOuReservaEmLista(Integer idPassageiro) {
         return voo.getIdsReservados().containsKey(idPassageiro) || voo.getIdsListaEspera().containsKey(idPassageiro);
+    }
+
+    private boolean existeReserva(Integer idPassageiro) {
+        return voo.getIdsReservados().containsKey(idPassageiro);
     }
 
     private void adicionarParaReservas(Reserva reserva) {
@@ -128,5 +132,20 @@ public class Controlador {
         voo.getIdsListaEspera().put(reserva.getPassageiro().getId(), voo.getListaDeEspera().size());
         voo.getListaDeEspera().push(reserva);
     }
+
+	public void validarDadosParaCancelamento(Integer idPassageiro, String numeroVoo) throws ValidarDadosException {
+        if (!numeroVoo.equals(getNumeroVoo())) {
+            throw new ValidarDadosException("Número de voo inválido");
+        }
+
+        if (!existeReserva(idPassageiro)) {
+            throw new ValidarDadosException("Não existe uma reserva para esse passageiro neste voo");
+        }
+	}
+
+	public boolean cancelarReserva(Integer idPassageiro, String numeroVoo) {
+		return voo.getIdsReservados().remove(idPassageiro) != null;
+		
+	}
 
 }
