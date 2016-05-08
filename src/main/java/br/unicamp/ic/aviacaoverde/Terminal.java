@@ -1,8 +1,10 @@
 package br.unicamp.ic.aviacaoverde;
 
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Scanner;
 
-public class Terminal {
+public class Terminal implements Observer {
 
     private final Scanner scanner;
     private final Controlador controlador;
@@ -73,13 +75,9 @@ public class Terminal {
 			return;
 		}
         
-        boolean cancelado = controlador.cancelarReserva(idPassageiro, numeroVoo);
+        controlador.cancelarReserva(idPassageiro);
 
-        if (cancelado) {
-        	System.out.println("Reserva cancelada com sucesso!");
-        } else {
-        	System.out.println("Reserva não pode ser cancelada!");
-        }
+        System.out.println("Reserva cancelada com sucesso!");
 	}
 
 	private void reservar() {
@@ -101,6 +99,9 @@ public class Terminal {
             System.out.println("Reserva efetuada com sucesso!");
         } else {
             System.out.println("Este voo está lotado, a reserva foi adicionada à lista de espera.");
+            // Registra o Terminal como obersver para printar mudança da reserva quando for confirmada no controlador.
+            Reserva reservaEmLista = controlador.buscarReserva(idPassageiro);
+            reservaEmLista.addObserver(this);
         }
     }
 
@@ -171,5 +172,14 @@ public class Terminal {
         System.out.println("Passageiro: " + nome);
         System.out.println("Status da Reserva: " + statusReserva);
         System.out.println();
+    }
+
+    @Override public void update(Observable o, Object arg) {
+        if (o instanceof Reserva) {
+            Reserva reserva = (Reserva)o;
+            if (reserva.isConfirmada()) {
+                System.out.println("Reserva do passageiro "+reserva.getPassageiro().getNome()+" foi confirmada! Huuu padrão observer em ação :)");
+            }
+        }
     }
 }

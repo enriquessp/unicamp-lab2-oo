@@ -115,6 +115,16 @@ public class Controlador {
         return passageiro;
     }
 
+    private void removerDeReservas(Reserva reserva) {
+        voo.getIdsReservados().remove(reserva.getPassageiro().getId());
+        voo.getReservas().removeIf(r -> r.getPassageiro().getId().equals(reserva.getPassageiro().getId()));
+    }
+
+    private void removerDeReservasEmLista(Reserva reserva) {
+        voo.getIdsListaEspera().remove(reserva.getPassageiro().getId());
+        voo.getListaDeEspera().removeIf(r -> r.getPassageiro().getId().equals(reserva.getPassageiro().getId()));
+    }
+
     private boolean existeReservaOuReservaEmLista(Integer idPassageiro) {
         return voo.getIdsReservados().containsKey(idPassageiro) || voo.getIdsListaEspera().containsKey(idPassageiro);
     }
@@ -143,9 +153,15 @@ public class Controlador {
         }
 	}
 
-	public boolean cancelarReserva(Integer idPassageiro, String numeroVoo) {
-		return voo.getIdsReservados().remove(idPassageiro) != null;
-		
+	public void cancelarReserva(Integer idPassageiro) {
+            removerDeReservas( buscarReserva(idPassageiro) );
+                Reserva reservaEmLista = voo.getListaDeEspera().pop();
+                if (null != reservaEmLista) {
+                    reservaEmLista.setConfirmada(true);
+                    removerDeReservasEmLista(reservaEmLista);
+                    adicionarParaReservas(reservaEmLista);
+                }
+
 	}
 
 }
